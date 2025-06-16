@@ -1,0 +1,33 @@
+{
+    "compilerOptions": {
+        "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+        "target": "ES2023",
+        "module": "ESNext",
+        "skipLibCheck": true,
+        "composite": true,
+        "noEmit": false,
+
+        /* Bundler mode */
+        "moduleResolution": "bundler",
+        "allowImportingTsExtensions": true,
+        "verbatimModuleSyntax": true,
+        "moduleDetection": "force",
+        "esModuleInterop": true /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */,
+        "resolveJsonModule": true /* Enable importing .json files. */,
+
+        // Only emit declaration files to dist/
+        "declaration": true,
+        "emitDeclarationOnly": true,
+        "outDir": "dist",
+
+        /* Linting */
+        "strict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "erasableSyntaxOnly": true,
+        "noFallthroughCasesInSwitch": true,
+        "noUncheckedSideEffectImports": true
+    },
+    "include": ["src/**/*.ts", "src/**/*.vue", "src/**/*.ce.vue"],
+    "files": ["src/lib.ts"]
+}

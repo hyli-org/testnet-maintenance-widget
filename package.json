@@ -1,0 +1,41 @@
+{
+    "name": "testnet-maintenance-widget",
+    "version": "0.1.0",
+    "author": "Hyli",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/hyli-org/testnet-maintenance-widget"
+    },
+    "type": "module",
+    "sideEffects": false,
+    "main": "dist/testnet-maintenance-widget.js",
+    "module": "dist/testnet-maintenance-widget.js",
+    "types": "dist/src/lib.d.ts",
+    "files": [
+        "dist/",
+        "README.md"
+    ],
+    "exports": {
+        ".": {
+            "import": "./dist/testnet-maintenance-widget.js",
+            "require": "./dist/testnet-maintenance-widget.js",
+            "types": "./dist/src/lib.d.ts"
+        }
+    },
+    "scripts": {
+        "dev": "vite",
+        "build": "vue-tsc && vite build && tsc",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "@tailwindcss/vite": "^4.1.10",
+        "vue": "^3.5.13"
+    },
+    "devDependencies": {
+        "@vitejs/plugin-vue": "^5.2.3",
+        "@vue/tsconfig": "^0.7.0",
+        "typescript": "~5.8.3",
+        "vite": "^6.3.5",
+        "vue-tsc": "^2.2.8"
+    }
+}
