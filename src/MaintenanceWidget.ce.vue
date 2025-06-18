@@ -56,10 +56,10 @@ watch(showHeavyLoad, (val) => setStickyState(HEAVY_KEY, val));
 
 // Fetch /v1/info at mount to check if we should display the asleep overlay
 onMounted(() => {
-    if (actualNodeUrl && !showAsleep.value) {
+    if (actualNodeUrl.value && !showAsleep.value) {
         const fetchInfo = async () => {
             try {
-                await fetch(`${actualNodeUrl}/v1/info`, { cache: "no-store" });
+                await fetch(`${actualNodeUrl.value}/v1/info`, { cache: "no-store" });
             } catch {
                 // If the fetch fails, assume the node is asleep
                 showAsleep.value = true;
