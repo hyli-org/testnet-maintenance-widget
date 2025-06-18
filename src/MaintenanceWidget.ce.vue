@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { MaintenanceWidgetProps } from "./lib";
-import { ref, watch, onMounted, defineProps } from "vue";
+import { ref, watch, onMounted, defineProps, computed } from "vue";
 import DeadImg from "./assets/dead.png";
 import AsleepImg from "./assets/asleep.png";
 
@@ -31,6 +31,10 @@ function setStickyState(key: string, value: boolean) {
 const showAsleep = ref(getStickyState(ASLEEP_KEY, !!props.showAsleep));
 const showHeavyLoad = ref(getStickyState(HEAVY_KEY, !!props.showHeavyLoad));
 
+const actualNodeUrl = computed(() => {
+    return props.nodeurl || (window.location.hostname === "localhost" ? undefined : "https://node.testnet.hyli.org");
+});
+
 watch(
     () => props.showAsleep,
     (val) => {
@@ -52,10 +56,10 @@ watch(showHeavyLoad, (val) => setStickyState(HEAVY_KEY, val));
 
 // Fetch /v1/info at mount to check if we should display the asleep overlay
 onMounted(() => {
-    if (props.nodeurl && !showAsleep.value) {
+    if (actualNodeUrl && !showAsleep.value) {
         const fetchInfo = async () => {
             try {
-                await fetch(`${props.nodeurl}/v1/info`, { cache: "no-store" });
+                await fetch(`${actualNodeUrl}/v1/info`, { cache: "no-store" });
             } catch {
                 // If the fetch fails, assume the node is asleep
                 showAsleep.value = true;

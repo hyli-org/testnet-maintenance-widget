@@ -13,5 +13,6 @@ export const declareCustomElement = () => {
 export type MaintenanceWidgetProps = {
     showAsleep?: boolean;
     showHeavyLoad?: boolean;
+    // To overwrite the default node URL
     nodeurl?: string;
 };

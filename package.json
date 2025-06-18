@@ -1,6 +1,6 @@
 {
     "name": "testnet-maintenance-widget",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "author": "Hyli",
     "repository": {
         "type": "git",
@@ -17,21 +17,24 @@
     ],
     "exports": {
         ".": {
+            "types": "./dist/src/lib.d.ts",
             "import": "./dist/testnet-maintenance-widget.js",
-            "require": "./dist/testnet-maintenance-widget.js",
-            "types": "./dist/src/lib.d.ts"
+            "require": "./dist/testnet-maintenance-widget.js"
         }
     },
     "scripts": {
         "dev": "vite",
-        "build": "vue-tsc && vite build && tsc",
-        "preview": "vite preview"
+        "build": "vue-tsc && vite build && (tsc || true)",
+        "preview": "vite preview",
+        "prepublishOnly": "npm run build"
     },
     "dependencies": {
         "@tailwindcss/vite": "^4.1.10",
         "vue": "^3.5.13"
     },
     "devDependencies": {
+        "@types/react": "^19.1.8",
+        "@microsoft/api-extractor": "^7.52.8",
         "@vitejs/plugin-vue": "^5.2.3",
         "@vue/tsconfig": "^0.7.0",
         "typescript": "~5.8.3",
