@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { MaintenanceWidgetProps } from "./lib";
-import { ref, watch, onMounted, defineProps, computed } from "vue";
+import { ref, watch, onMounted, defineProps, computed, onBeforeUnmount } from "vue";
 import DeadImg from "./assets/dead.png";
 import AsleepImg from "./assets/asleep.png";
 
@@ -55,18 +55,52 @@ watch(showAsleep, (val) => setStickyState(ASLEEP_KEY, val));
 watch(showHeavyLoad, (val) => setStickyState(HEAVY_KEY, val));
 
 // Fetch /v1/info at mount to check if we should display the asleep overlay
+const fetchInterval = ref<number | null>(null);
+
+function fetchWithTimeout(resource: string, options: RequestInit = {}, timeout = 5000) {
+    return new Promise<Response>((resolve, reject) => {
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeout);
+        fetch(resource, { ...options, signal: controller.signal })
+            .then((response) => {
+                clearTimeout(id);
+                resolve(response);
+            })
+            .catch((err) => {
+                clearTimeout(id);
+                reject(err);
+            });
+    });
+}
+
 onMounted(() => {
-    if (actualNodeUrl.value && !showAsleep.value) {
-        const fetchInfo = async () => {
+    const fetchInfo = async () => {
+        if (actualNodeUrl.value && !showAsleep.value) {
             try {
-                await fetch(`${actualNodeUrl.value}/v1/info`, { cache: "no-store" });
-            } catch {
-                // If the fetch fails, assume the node is asleep
+                let resp = await fetchWithTimeout(`${actualNodeUrl.value}/v1/info`, { cache: "no-store" }, 5000);
+                if (resp.status === 429) {
+                    showHeavyLoad.value = true;
+                    setStickyState(HEAVY_KEY, true);
+                } else if (resp.ok) {
+                    showHeavyLoad.value = false;
+                    setStickyState(HEAVY_KEY, false);
+                } else {
+                    throw new Error(`Unexpected status: ${resp.status}`);
+                }
+            } catch (err) {
+                console.error("Error fetching /v1/info:", err);
                 showAsleep.value = true;
                 setStickyState(ASLEEP_KEY, true);
             }
-        };
-        fetchInfo();
+        }
+    };
+    fetchInfo();
+    fetchInterval.value = window.setInterval(fetchInfo, 60000); // retry every minute
+});
+
+onBeforeUnmount(() => {
+    if (fetchInterval.value) {
+        window.clearInterval(fetchInterval.value);
     }
 });
 </script>
