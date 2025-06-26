@@ -77,20 +77,38 @@ onMounted(() => {
     const fetchInfo = async () => {
         if (actualNodeUrl.value && !showAsleep.value) {
             try {
-                let resp = await fetchWithTimeout(`${actualNodeUrl.value}/v1/info`, { cache: "no-store" }, 5000);
+                let resp = await fetchWithTimeout(`${actualNodeUrl.value}/v1/info`, { cache: "no-store" }, 2000);
                 if (resp.status === 429) {
+                    showAsleep.value = false;
                     showHeavyLoad.value = true;
+                    setStickyState(ASLEEP_KEY, false);
                     setStickyState(HEAVY_KEY, true);
                 } else if (resp.ok) {
                     showHeavyLoad.value = false;
+                    showAsleep.value = false;
+                    setStickyState(ASLEEP_KEY, false);
                     setStickyState(HEAVY_KEY, false);
                 } else {
                     throw new Error(`Unexpected status: ${resp.status}`);
                 }
             } catch (err) {
                 console.error("Error fetching /v1/info:", err);
-                showAsleep.value = true;
-                setStickyState(ASLEEP_KEY, true);
+                // Because google 429 don't contain CORS headers, we need a workaround.
+                try {
+                    await fetchWithTimeout(`${actualNodeUrl.value}/ratelimit`, { cache: "no-store" }, 500);
+                    // If we reach here, it means the node is under heavy load
+                    showAsleep.value = false;
+                    showHeavyLoad.value = true;
+                    setStickyState(ASLEEP_KEY, false);
+                    setStickyState(HEAVY_KEY, true);
+                } catch (err) {
+                    // If we can't reach /ratelimit, assume the node is asleep
+                    console.error("Error fetching /ratelimit:", err);
+                    showAsleep.value = true;
+                    showHeavyLoad.value = false;
+                    setStickyState(ASLEEP_KEY, true);
+                    setStickyState(HEAVY_KEY, false);
+                }
             }
         }
     };
@@ -112,7 +130,7 @@ onBeforeUnmount(() => {
             <div class="maintenance-img">
                 <img :src="AsleepImg" alt="Hyli asleep" />
             </div>
-            <h2>Hyli is asleep for the night.</h2>
+            <h2>Hyli is asleep for a little while.</h2>
             <p>The testnet is off while we make some upgrades.</p>
             <p>
                 For updates, follow us on
